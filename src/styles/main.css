@@ -1,0 +1,235 @@
+:root {
+  --bg: #0e0f13;
+  --panel: rgb(24 26 32 / 0.78);
+  --text: #e8e6e3;
+  --muted: #9aa0a6;
+  --accent: #d97757;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+}
+.stage canvas {
+  display: block;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+.hud > * {
+  pointer-events: auto;
+}
+.panel {
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  border-radius: 12px;
+}
+
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  pointer-events: none;
+}
+header h1 {
+  margin: 0;
+  font-size: 1rem;
+  text-shadow: 0 2px 8px #000;
+}
+.status {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-shadow: 0 2px 8px #000;
+}
+.status.busy {
+  color: var(--accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.toolbar {
+  grid-column: 1;
+  justify-self: start;
+  align-self: start;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  pointer-events: none;
+}
+.toolbar > * {
+  pointer-events: auto;
+}
+.settings {
+  font-size: 0.8rem;
+}
+.settings summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 6px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  user-select: none;
+}
+.settings summary::-webkit-details-marker {
+  display: none;
+}
+.settings-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+.settings-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.settings-body input,
+.settings-body select {
+  background: rgb(0 0 0 / 0.35);
+  color: var(--text);
+  border: 1px solid #333842;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 0.78rem;
+  min-width: 0;
+}
+.settings-body .check {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  grid-column: 1 / -1;
+  font-size: 0.72rem;
+}
+.settings-body .note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
+.key-state {
+  color: #e0a24a;
+}
+.key-state.ok {
+  color: #6fcf8f;
+}
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 8px;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.icon-btn.accent {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.side {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  align-self: start;
+  width: 260px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.side:not(:has(li, .comment:not(:empty), .cost:not(:empty))) {
+  display: none;
+}
+.comment {
+  color: var(--muted);
+  font-style: italic;
+  min-height: 1.2em;
+  overflow-wrap: anywhere;
+}
+.hint {
+  opacity: 0.6;
+}
+.comment:empty {
+  display: none;
+}
+.history {
+  margin: 0;
+  padding-left: 28px;
+  max-height: 40vh;
+  overflow-y: auto;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.85rem;
+  white-space: pre;
+}
+.cost {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.cost:empty {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .hud {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+  }
+  .side {
+    grid-column: 1;
+    grid-row: 4;
+    width: auto;
+    align-self: end;
+  }
+  .history {
+    max-height: 18vh;
+  }
+  .settings-body {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,5 @@
+dist
+node_modules
+public/models
+blender/build
+package-lock.json
