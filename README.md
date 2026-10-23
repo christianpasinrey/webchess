@@ -49,9 +49,3 @@ BLENDER=/ruta/a/blender npm run model   # si Blender no está en /Applications
 - `blender/geo.py`: utilidades geométricas compartidas.
 
 El `.glb` comprimido se versiona en el repo porque el CI no ejecuta Blender.
-
-## Despliegue
-
-Cada push a `main` pasa el CI (typecheck, lint, formato, tests y build) y publica `dist/` en **GitHub Pages**. Se sirve en **https://chess.christianpasinrey.es**, definido en `public/CNAME`; en el DNS hay un registro `CNAME` de `chess` apuntando a `christianpasinrey.github.io`.
-
-Para desplegar en una subruta en vez de un subdominio: `VITE_BASE=/webchess/ npm run build`.
