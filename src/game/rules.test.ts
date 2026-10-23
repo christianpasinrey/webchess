@@ -42,10 +42,16 @@ describe("kingInCheck", () => {
 describe("statusText", () => {
   it("reports turns, thinking and mate", () => {
     const game = new Chess();
-    expect(statusText(game, "w", false)).toBe("Tu turno");
-    expect(statusText(game, "b", true)).toBe("Claude está pensando…");
+    expect(statusText(game, "w", false, "Claude")).toBe("Tu turno");
+    expect(statusText(game, "b", true, "Claude")).toBe("Claude está pensando…");
     const mated = new Chess("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1");
-    expect(statusText(mated, "w", false)).toBe("¡Jaque mate! Ganas tú.");
+    expect(statusText(mated, "w", false, "Claude")).toBe("¡Jaque mate! Ganas tú.");
+  });
+
+  it("names the opponent that is playing", () => {
+    expect(statusText(new Chess(), "b", false, "Stockfish")).toBe("Turno de Stockfish");
+    const mated = new Chess("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1");
+    expect(statusText(mated, "b", false, "Stockfish")).toBe("Jaque mate. Gana Stockfish.");
   });
 });
 

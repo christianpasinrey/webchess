@@ -1,5 +1,6 @@
 import { Chess, type Color, type Move, type Square } from "chess.js";
 import { describeError, requestMove } from "../ai/client";
+import { Stockfish } from "../engine/stockfish";
 import type { Board3D } from "../scene/board3d";
 import type { Hud } from "../ui/hud";
 import { kingInCheck, movePairs, resolveClick, statusText } from "./rules";
@@ -13,6 +14,8 @@ export class GameController {
   private thinking = false;
   /** Bumped on every new game so a reply that arrives for an abandoned game is dropped. */
   private gameId = 0;
+  /** Started lazily: the worker and its .wasm only load the first time the BOT plays. */
+  private engine = new Stockfish();
   private totalCost = 0;
   private totalTokens = 0;
   private board: Board3D;
@@ -32,6 +35,7 @@ export class GameController {
     this.game.reset();
     this.gameId++;
     this.thinking = false;
+    this.engine.newGame();
     this.player = this.hud.playerColor;
     this.selected = null;
     this.lastMove = null;
@@ -53,8 +57,11 @@ export class GameController {
     this.render();
   }
 
-  onCredentialsChange() {
-    if (!this.thinking) void this.maybeAiMove();
+  /** Opponent, key or level changed: if the AI was waiting on that, let it play now. */
+  onSettingsChange() {
+    if (this.thinking) return;
+    this.render();
+    void this.maybeAiMove();
   }
 
   onSquareClick(square: Square) {
@@ -78,24 +85,33 @@ export class GameController {
 
   private async maybeAiMove() {
     if (this.game.isGameOver() || this.game.turn() === this.player) return;
+    const opponent = this.hud.opponent;
     const credentials = this.hud.credentials;
-    if (!credentials) {
-      this.hud.setStatus("Pon tu API key para que juegue la IA.", false);
+    if (opponent === "claude" && !credentials) {
+      this.hud.setStatus("Pon tu API key para que juegue Claude, o juega contra el BOT.", false);
       this.hud.requestCredentials();
       return;
     }
     this.thinking = true;
     this.render();
-    const level = this.hud.level;
     const gameId = this.gameId;
     try {
-      const result = await requestMove(credentials, level, this.game, this.game.history().at(-1) ?? null);
-      // The tokens were spent even if the game was abandoned meanwhile.
-      this.totalCost += result.cost;
-      this.totalTokens += result.inputTokens + result.outputTokens;
-      if (gameId !== this.gameId) return;
-      this.play(this.game.move(result.move));
-      this.hud.setComment(`${level.label}: ${result.comment}`);
+      if (opponent === "bot") {
+        const move = await this.engine.bestMove(this.game.fen(), this.hud.botLevel);
+        if (gameId !== this.gameId) return;
+        if (!move) throw new Error("El motor no ha devuelto ninguna jugada.");
+        this.play(this.game.move(move));
+        this.hud.setComment("");
+      } else if (credentials) {
+        const level = this.hud.level;
+        const result = await requestMove(credentials, level, this.game, this.game.history().at(-1) ?? null);
+        // The tokens were spent even if the game was abandoned meanwhile.
+        this.totalCost += result.cost;
+        this.totalTokens += result.inputTokens + result.outputTokens;
+        if (gameId !== this.gameId) return;
+        this.play(this.game.move(result.move));
+        this.hud.setComment(`${level.label}: ${result.comment}`);
+      }
     } catch (err) {
       if (gameId === this.gameId) this.hud.setComment(`Error: ${describeError(err)}`);
     } finally {
@@ -112,7 +128,8 @@ export class GameController {
       check: kingInCheck(this.game),
       thinking: this.thinking,
     });
-    this.hud.setStatus(statusText(this.game, this.player, this.thinking), this.thinking);
+    const opponent = this.hud.opponent === "bot" ? "Stockfish" : "Claude";
+    this.hud.setStatus(statusText(this.game, this.player, this.thinking, opponent), this.thinking);
     this.hud.setHistory(movePairs(this.game.history()));
     this.hud.setCost(this.totalTokens, this.totalCost);
   }

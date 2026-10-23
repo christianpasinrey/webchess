@@ -32,9 +32,10 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^1.1.0",
     "chess.js": "^1.4.0",
+    "stockfish": "19.0.1",
     "three": "^0.186.1"
   },
-  "description": "Ajedrez 3D en el navegador contra Claude: elfos contra orcos",
+  "description": "Ajedrez 3D en el navegador contra Claude o Stockfish: elfos contra orcos",
   "engines": {
     "node": ">=22"
   }

@@ -28,12 +28,12 @@ export function kingInCheck(game: Chess): Square | null {
   return null;
 }
 
-export function statusText(game: Chess, player: Color, thinking: boolean): string {
-  if (game.isCheckmate()) return game.turn() === player ? "Jaque mate. Gana Claude." : "¡Jaque mate! Ganas tú.";
+export function statusText(game: Chess, player: Color, thinking: boolean, opponent: string): string {
+  if (game.isCheckmate()) return game.turn() === player ? `Jaque mate. Gana ${opponent}.` : "¡Jaque mate! Ganas tú.";
   if (game.isDraw()) return "Tablas.";
-  if (thinking) return "Claude está pensando…";
+  if (thinking) return `${opponent} está pensando…`;
   const check = game.isCheck() ? " (jaque)" : "";
-  return (game.turn() === player ? "Tu turno" : "Turno de Claude") + check;
+  return (game.turn() === player ? "Tu turno" : `Turno de ${opponent}`) + check;
 }
 
 /** SAN history grouped into numbered move pairs: ["e4  e5", "Nf3  Nc6", ...]. */

@@ -21,7 +21,7 @@ let controller: GameController | undefined;
 const hud = new Hud(root, {
   onNewGame: () => controller?.newGame(),
   onUndo: () => controller?.undo(),
-  onCredentialsChange: () => controller?.onCredentialsChange(),
+  onSettingsChange: () => controller?.onSettingsChange(),
 });
 
 if (!webglAvailable()) {

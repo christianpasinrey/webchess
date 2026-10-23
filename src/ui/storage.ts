@@ -1,5 +1,5 @@
 /**
- * Credential storage. The API key lives in sessionStorage (cleared when the tab closes)
+ * Settings storage. The API key lives in sessionStorage (cleared when the tab closes)
  * unless the player opts in to remembering it in this browser (localStorage).
  * Every access is guarded: storage can be unavailable in private modes.
  */
@@ -36,6 +36,15 @@ export function loadCredentials(): StoredCredentials {
   const remember = read(local, KEYS.remember) === "1";
   const pick = (key: string) => read(session, key) ?? (remember ? read(local, key) : null) ?? "";
   return { apiKey: pick(KEYS.apiKey), workspaceId: pick(KEYS.workspaceId), remember };
+}
+
+/** Non-secret settings (opponent, BOT level): always remembered in this browser. */
+export function loadPreference(name: string): string | null {
+  return read(local, `${PREFIX}${name}`);
+}
+
+export function savePreference(name: string, value: string) {
+  write(local, `${PREFIX}${name}`, value);
 }
 
 export function saveCredentials({ apiKey, workspaceId, remember }: StoredCredentials) {
