@@ -36,6 +36,13 @@ export function statusText(game: Chess, player: Color, thinking: boolean, oppone
   return (game.turn() === player ? "Tu turno" : `Turno de ${opponent}`) + check;
 }
 
+/** a1 is dark, so every player has a light square in the right-hand corner. */
+export function isDarkSquare(square: string): boolean {
+  const file = "abcdefgh".indexOf(square[0]);
+  const rank = Number(square[1]);
+  return (file + rank) % 2 === 1;
+}
+
 /** SAN history grouped into numbered move pairs: ["e4  e5", "Nf3  Nc6", ...]. */
 export function movePairs(history: readonly string[]): string[] {
   const pairs: string[] = [];

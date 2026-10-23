@@ -6,6 +6,7 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 import type { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import { elfIvory, marbleTile, orcStone, slateTile } from "./surfaces";
 import { Atmosphere } from "./atmosphere";
+import { isDarkSquare } from "../game/rules";
 
 const FILES = "abcdefgh";
 const PIECE_NAMES: Record<PieceSymbol, string> = {
@@ -184,8 +185,7 @@ export class Board3D {
     for (let f = 0; f < 8; f++) {
       for (let r = 1; r <= 8; r++) {
         const square = `${FILES[f]}${r}` as Square;
-        const dark = (f + r) % 2 === 0;
-        const material = dark ? slateTile() : marbleTile();
+        const material = isDarkSquare(square) ? slateTile() : marbleTile();
         const base = material.color.clone();
         const tile = new THREE.Mesh(tileGeo, material);
         tile.position.copy(squareToPos(square)).setY(-0.06);

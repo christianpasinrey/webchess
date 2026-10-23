@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import { describe, expect, it } from "vitest";
-import { kingInCheck, movePairs, resolveClick, statusText } from "./rules";
+import { isDarkSquare, kingInCheck, movePairs, resolveClick, statusText } from "./rules";
 
 describe("resolveClick", () => {
   it("selects own pieces and ignores empty or enemy squares", () => {
@@ -52,6 +52,17 @@ describe("statusText", () => {
     expect(statusText(new Chess(), "b", false, "Stockfish")).toBe("Turno de Stockfish");
     const mated = new Chess("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1");
     expect(statusText(mated, "b", false, "Stockfish")).toBe("Jaque mate. Gana Stockfish.");
+  });
+});
+
+describe("isDarkSquare", () => {
+  it("puts a dark square in each player's left corner and each queen on her own colour", () => {
+    expect(isDarkSquare("a1")).toBe(true);
+    expect(isDarkSquare("h8")).toBe(true);
+    expect(isDarkSquare("h1")).toBe(false);
+    expect(isDarkSquare("a8")).toBe(false);
+    expect(isDarkSquare("d1")).toBe(false);
+    expect(isDarkSquare("d8")).toBe(true);
   });
 });
 
