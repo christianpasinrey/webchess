@@ -11,6 +11,8 @@ export class GameController {
   private selected: Square | null = null;
   private lastMove: { from: string; to: string } | null = null;
   private thinking = false;
+  /** Bumped on every new game so a reply that arrives for an abandoned game is dropped. */
+  private gameId = 0;
   private totalCost = 0;
   private totalTokens = 0;
   private board: Board3D;
@@ -28,6 +30,8 @@ export class GameController {
 
   newGame() {
     this.game.reset();
+    this.gameId++;
+    this.thinking = false;
     this.player = this.hud.playerColor;
     this.selected = null;
     this.lastMove = null;
@@ -83,16 +87,19 @@ export class GameController {
     this.thinking = true;
     this.render();
     const level = this.hud.level;
+    const gameId = this.gameId;
     try {
       const result = await requestMove(credentials, level, this.game, this.game.history().at(-1) ?? null);
-      this.play(this.game.move(result.move));
-      this.hud.setComment(`${level.label}: ${result.comment}`);
+      // The tokens were spent even if the game was abandoned meanwhile.
       this.totalCost += result.cost;
       this.totalTokens += result.inputTokens + result.outputTokens;
+      if (gameId !== this.gameId) return;
+      this.play(this.game.move(result.move));
+      this.hud.setComment(`${level.label}: ${result.comment}`);
     } catch (err) {
-      this.hud.setComment(`Error: ${describeError(err)}`);
+      if (gameId === this.gameId) this.hud.setComment(`Error: ${describeError(err)}`);
     } finally {
-      this.thinking = false;
+      if (gameId === this.gameId) this.thinking = false;
       this.render();
     }
   }
